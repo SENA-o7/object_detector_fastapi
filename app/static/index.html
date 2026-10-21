@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nesne Tespit</title>
+<!-- Piksel yazı tipleri; internet yoksa sayfa monospace yazıyla aynen çalışıyor -->
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #ffe3f1; --kart: #fff7fb; --yazi: #4a1235; --soluk: #a0577f;
+    --pembe: #ff4fa3; --koyu: #c2185b; --acik: #ffc2e0; --hata: #e0002a;
+    --kutu: #ff1f8e; --piksel: "Press Start 2P", monospace; --govde: "VT323", monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1e0b18; --kart: #2d1226; --yazi: #ffd6ec; --soluk: #d98bb6;
+      --pembe: #ff5fb0; --koyu: #ff9ccc; --acik: #4a1a3b; --hata: #ff6b8a;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; color: var(--yazi); font: 22px/1.25 var(--govde);
+    /* Arka plana hafif bir piksel ızgarası koydum */
+    background-color: var(--bg);
+    background-image:
+      linear-gradient(var(--acik) 2px, transparent 2px),
+      linear-gradient(90deg, var(--acik) 2px, transparent 2px);
+    background-size: 32px 32px;
+  }
+  main { max-width: 1000px; margin: 0 auto; padding: 36px 16px 48px; }
+  h1 {
+    margin: 0 0 12px; font: 26px/1.3 var(--piksel); color: var(--pembe);
+    text-shadow: 3px 3px 0 var(--koyu);
+  }
+  .alt { margin: 0 0 28px; color: var(--soluk); }
+  .alt b { color: var(--yazi); }
+  .izgara { display: grid; grid-template-columns: 1.4fr 1fr; gap: 24px; }
+  @media (max-width: 760px) { .izgara { grid-template-columns: 1fr; } h1 { font-size: 18px; } }
+  .kart {
+    background: var(--kart); border: 4px solid var(--yazi);
+    box-shadow: 8px 8px 0 var(--pembe); padding: 18px;
+  }
+  #birak {
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px;
+    min-height: 320px; border: 4px dashed var(--pembe);
+    cursor: pointer; text-align: center; color: var(--soluk);
+  }
+  #birak.uzerinde, #birak:hover { background: var(--acik); border-style: solid; }
+  #birak strong { font: 13px/1.6 var(--piksel); color: var(--yazi); }
+  .kalp { font: 28px var(--piksel); color: var(--pembe); animation: zipla 1s steps(2) infinite; }
+  @keyframes zipla { 50% { transform: translateY(-6px); } }
+  /* Küçük görüntüler büyütülünce bulanıklaşmasın, piksel piksel görünsün */
+  #tuval { display: none; width: 100%; height: auto; image-rendering: pixelated; border: 4px solid var(--yazi); }
+  .degistir { margin-top: 16px; display: none; }
+  button {
+    font: 11px var(--piksel); border: 3px solid var(--yazi); background: var(--pembe); color: #fff;
+    padding: 10px 14px; cursor: pointer; box-shadow: 4px 4px 0 var(--yazi);
+  }
+  button:hover { background: var(--koyu); }
+  button:active { transform: translate(4px, 4px); box-shadow: none; }
+  .etiket { font: 10px/1.6 var(--piksel); color: var(--soluk); text-transform: uppercase; }
+  #sinif { font: 20px/1.4 var(--piksel); color: var(--pembe); margin: 6px 0 4px; word-break: break-word; }
+  #guven { color: var(--soluk); margin-bottom: 18px; }
+  .cubuk { margin: 12px 0; }
+  .cubuk-ust { display: flex; justify-content: space-between; }
+  .cubuk-dis { height: 18px; border: 3px solid var(--yazi); background: var(--kart); margin-top: 4px; padding: 2px; }
+  /* Çubuğu dolgun bir şerit yerine blok blok dolduruyorum */
+  .cubuk-ic {
+    height: 100%; width: 0; background: repeating-linear-gradient(90deg, var(--soluk) 0 8px, transparent 8px 10px);
+    transition: width .6s steps(12);
+  }
+  .cubuk.kazanan .cubuk-ic { background: repeating-linear-gradient(90deg, var(--pembe) 0 8px, transparent 8px 10px); }
+  .cubuk.kazanan .cubuk-ust { color: var(--pembe); }
+  #bbox { margin-top: 16px; }
+  details { margin-top: 16px; }
+  summary { cursor: pointer; color: var(--soluk); }
+  pre {
+    background: var(--bg); border: 3px solid var(--yazi); padding: 12px;
+    overflow-x: auto; font: 18px/1.2 var(--govde); margin-bottom: 0;
+  }
+  #bos { color: var(--soluk); }
+  #hata { color: var(--hata); display: none; }
+  #sonuc { display: none; }
+  footer { margin-top: 32px; color: var(--soluk); }
+  footer a { color: var(--pembe); }
+  code { font-family: var(--govde); color: var(--yazi); }
+</style>
+</head>
+<body>
+<main>
+  <h1>Nesne Tespit</h1>
+  <p class="alt">ResNet50 tabanlı modelim görüntüyü <b>Motorbikes</b>, <b>airplanes</b> ya da <b>schooner</b> olarak sınıflandırıyor ve nesnenin yerini kutuyla gösteriyor.</p>
+
+  <div class="izgara">
+    <section class="kart">
+      <div id="birak">
+        <span class="kalp">&#9829;</span>
+        <strong>Görüntüyü buraya sürükle</strong>
+        <span>ya da seçmek için tıkla</span>
+      </div>
+      <canvas id="tuval"></canvas>
+      <div class="degistir"><button id="yeni">Başka görüntü seç</button></div>
+      <input id="dosya" type="file" accept="image/*" hidden>
+    </section>
+
+    <section class="kart">
+      <p id="bos">Sonuç burada görünecek.</p>
+      <p id="hata"></p>
+      <div id="sonuc">
+        <div class="etiket">Sonuç</div>
+        <div id="sinif"></div>
+        <div id="guven"></div>
+        <div class="etiket">Sınıf olasılıkları</div>
+        <div id="cubuklar"></div>
+        <div id="bbox"></div>
+        <details>
+          <summary>API'nin döndürdüğü JSON</summary>
+          <pre id="json"></pre>
+        </details>
+      </div>
+    </section>
+  </div>
+
+  <footer>Bu sayfa <code>POST /predict</code> adresini kullanıyor. API belgeleri: <a href="/docs">/docs</a></footer>
+</main>
+
+<script>
+  const birak = document.getElementById("birak");
+  const dosyaGirdisi = document.getElementById("dosya");
+  const tuval = document.getElementById("tuval");
+  const ctx = tuval.getContext("2d");
+
+  birak.onclick = () => dosyaGirdisi.click();
+  document.getElementById("yeni").onclick = () => dosyaGirdisi.click();
+  dosyaGirdisi.onchange = () => dosyaGirdisi.files[0] && gonder(dosyaGirdisi.files[0]);
+
+  birak.ondragover = (e) => { e.preventDefault(); birak.classList.add("uzerinde"); };
+  birak.ondragleave = () => birak.classList.remove("uzerinde");
+  birak.ondrop = (e) => {
+    e.preventDefault();
+    birak.classList.remove("uzerinde");
+    if (e.dataTransfer.files[0]) gonder(e.dataTransfer.files[0]);
+  };
+
+  function durum(bos, hata, sonuc) {
+    document.getElementById("bos").style.display = bos ? "block" : "none";
+    document.getElementById("hata").style.display = hata ? "block" : "none";
+    document.getElementById("sonuc").style.display = sonuc ? "block" : "none";
+  }
+
+  async function gonder(dosya) {
+    durum(false, false, false);
+    document.getElementById("bos").textContent = "Model tahmin yapıyor...";
+    durum(true, false, false);
+
+    // Görüntüyü FastAPI servisime form verisi olarak gönderiyorum (alan adı: file)
+    const form = new FormData();
+    form.append("file", dosya);
+    const cevap = await fetch("/predict", { method: "POST", body: form });
+    const veri = await cevap.json();
+
+    if (!cevap.ok) {
+      document.getElementById("hata").textContent = "Hata: " + (veri.detail || cevap.status);
+      durum(false, true, false);
+      return;
+    }
+
+    const resim = new Image();
+    resim.onload = async () => {
+      // Kutunun etiketi piksel yazı tipiyle çıksın diye önce yazı tipinin yüklenmesini bekliyorum
+      await document.fonts.load('10px "Press Start 2P"').catch(() => {});
+      ciz(resim, veri);
+      URL.revokeObjectURL(resim.src);
+    };
+    resim.src = URL.createObjectURL(dosya);
+    sonucuYaz(veri);
+  }
+
+  function ciz(resim, veri) {
+    // Tuvali görüntünün gerçek boyutunda açıyorum; böylece API'nin verdiği piksel
+    // koordinatlarını hiç dönüştürmeden doğrudan çizebiliyorum
+    tuval.width = resim.naturalWidth;
+    tuval.height = resim.naturalHeight;
+    ctx.drawImage(resim, 0, 0);
+
+    const [x1, y1, x2, y2] = veri.bbox;
+    const kalinlik = Math.max(2, Math.round(tuval.width / 150));
+    const renk = getComputedStyle(document.documentElement).getPropertyValue("--kutu");
+    ctx.lineWidth = kalinlik;
+    ctx.strokeStyle = renk;
+    ctx.strokeRect(x1, y1, x2 - x1, y2 - y1);
+
+    const yazi = `${veri.predicted_label} ${(veri.probability * 100).toFixed(1)}%`;
+    ctx.font = `${Math.max(8, Math.round(tuval.width / 40))}px "Press Start 2P", monospace`;
+    const yaziGenislik = ctx.measureText(yazi).width + 12;
+    const yaziYukseklik = parseInt(ctx.font.match(/\d+/)[0]) + 12;
+    const yaziY = y1 - yaziYukseklik < 0 ? y1 : y1 - yaziYukseklik;
+    ctx.fillStyle = renk;
+    ctx.fillRect(x1 - kalinlik / 2, yaziY, yaziGenislik, yaziYukseklik);
+    ctx.fillStyle = "#fff";
+    ctx.fillText(yazi, x1 + 6, yaziY + yaziYukseklik - 6);
+
+    birak.style.display = "none";
+    tuval.style.display = "block";
+    document.querySelector(".degistir").style.display = "block";
+  }
+
+  function sonucuYaz(veri) {
+    document.getElementById("sinif").textContent = veri.predicted_label;
+    document.getElementById("guven").textContent =
+      `Güven: %${(veri.probability * 100).toFixed(2)}`;
+
+    const cubuklar = document.getElementById("cubuklar");
+    cubuklar.innerHTML = "";
+    for (const [ad, p] of Object.entries(veri.probabilities)) {
+      const div = document.createElement("div");
+      div.className = "cubuk" + (ad === veri.predicted_label ? " kazanan" : "");
+      div.innerHTML = `<div class="cubuk-ust"><span></span><span>%${(p * 100).toFixed(2)}</span></div>
+                       <div class="cubuk-dis"><div class="cubuk-ic"></div></div>`;
+      div.querySelector("span").textContent = ad;
+      cubuklar.appendChild(div);
+      requestAnimationFrame(() => div.querySelector(".cubuk-ic").style.width = (p * 100) + "%");
+    }
+
+    document.getElementById("bbox").textContent = "Kutu [x1, y1, x2, y2]: " + JSON.stringify(veri.bbox);
+    document.getElementById("json").textContent = JSON.stringify(veri, null, 2);
+    durum(false, false, true);
+  }
+</script>
+</body>
+</html>

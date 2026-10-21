@@ -2,7 +2,7 @@ FROM python:3.12-slim
 
 WORKDIR /code
 
-# PyTorch'un sadece CPU sürümü (CUDA'lı sürüm GB'larca yer kaplar ve Mac'te işe yaramaz)
+# PyTorch'un sadece CPU sürümünü kurdum (CUDA'lı sürüm GB'larca yer kaplıyor ve Mac'te işe yaramıyor)
 RUN pip install --no-cache-dir torch==2.11.0 torchvision==0.26.0 \
     --index-url https://download.pytorch.org/whl/cpu
 

@@ -2,7 +2,7 @@ services:
   api:
     build: .
     image: object-detector-fastapi
-    # ARM tabanlı Mac (M1/M2/M3/M4) için imaj arm64 olarak derlenir
+    # İmajı ARM tabanlı Mac'ler (M1/M2/M3/M4) için arm64 olarak derliyorum
     platform: linux/arm64
     ports:
       - "7001:7001"
