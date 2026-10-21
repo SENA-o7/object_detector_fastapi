@@ -13,7 +13,7 @@ Bir önceki görevde Google Colab'da PyTorch ile bir nesne tespit modeli eğitti
 ## Çalıştırma
 
 ```bash
-git clone <bu-reponun-adresi>
+git clone  https://github.com/SENA-o7/object_detector_fastapi
 cd object-detector-fastapi
 docker-compose up
 ```
